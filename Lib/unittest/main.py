@@ -62,10 +62,11 @@ class TestProgram(object):
     failfast = catchbreak = buffer = progName = warnings = testNamePatterns = None
     _discovery_parser = None
 
-    def __init__(self, module='__main__', defaultTest=None, argv=None,
+    def __init__(self, argvParser=None, module='__main__', defaultTest=None, argv=None,
                     testRunner=None, testLoader=loader.defaultTestLoader,
                     exit=True, verbosity=1, failfast=None, catchbreak=None,
                     buffer=None, warnings=None, *, tb_locals=False):
+        self.argv_parser = argvParser
         if isinstance(module, str):
             self.module = __import__(module)
             for part in module.split('.')[1:]:
@@ -160,7 +161,7 @@ class TestProgram(object):
 
     def _initArgParsers(self):
         parent_parser = self._getParentArgParser()
-        self._main_parser = self._getMainArgParser(parent_parser)
+        self._main_parser = self._getMainArgParser(parent_parser, self.argv_parser)
         self._discovery_parser = self._getDiscoveryArgParser(parent_parser)
 
     def _getParentArgParser(self):
@@ -199,7 +200,7 @@ class TestProgram(object):
         return parser
 
     def _getMainArgParser(self, parent):
-        parser = argparse.ArgumentParser(parents=[parent])
+        parser = argparse.ArgumentParser(parents=parent, add_help=False)
         parser.prog = self.progName
         parser.print_help = self._print_help
 
